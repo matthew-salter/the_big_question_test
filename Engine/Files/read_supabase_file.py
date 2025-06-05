@@ -5,13 +5,17 @@ from logger import logger
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_BUCKET = "panelitix"
+SUPABASE_ROOT_FOLDER = os.getenv("SUPABASE_ROOT_FOLDER", "The_Big_Question")  # 🔹 Add this line
 
 def read_supabase_file(path: str, binary: bool = False):
     if not SUPABASE_URL:
         logger.error("❌ SUPABASE_URL is not set in environment variables.")
         raise ValueError("SUPABASE_URL not configured")
 
-    url = f"{SUPABASE_URL}/storage/v1/object/{SUPABASE_BUCKET}/{path}"
+    # 🔹 Prepend root folder to path
+    full_path = f"{SUPABASE_ROOT_FOLDER}/{path}"
+
+    url = f"{SUPABASE_URL}/storage/v1/object/{SUPABASE_BUCKET}/{full_path}"
     headers = get_supabase_headers()
 
     try:
