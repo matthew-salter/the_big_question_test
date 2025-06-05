@@ -71,7 +71,7 @@ def run_prompt(data):
 
         combined_output = f"{formatted_report}\n\n{formatted_section}".strip()
 
-        supabase_path = f"The_Big_Question/Predictive_Report/Ai_Responses/Format_Image_Prompts/{run_id}.txt"
+        supabase_path = f"Predictive_Report/Ai_Responses/Format_Image_Prompts/{run_id}.txt"
         write_supabase_file(supabase_path, combined_output)
         logger.info(f"✅ Formatted image prompt content written to Supabase: {supabase_path}")
 
