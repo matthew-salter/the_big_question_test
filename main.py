@@ -7,8 +7,14 @@ from Scripts.Predictive_Report.ingest_typeform import process_typeform_submissio
 
 app = Flask(__name__)
 
-RENDER_ENV = os.getenv("RENDER_ENV")  # e.g. "/ingest-typeform" or "/ingest-typeform-test"
+# --- ROUTE SAFEGUARD ---
+RENDER_ENV = os.getenv("RENDER_ENV", "/ingest-typeform-test")  # Optional default for dev
+if not RENDER_ENV.startswith("/"):
+    raise RuntimeError(f"❌ Invalid or missing RENDER_ENV: {RENDER_ENV!r} — must start with '/'")
 
+logger.info(f"📡 Flask binding RENDER_ENV route: {RENDER_ENV}")
+
+# --- PROMPT ROUTING CONFIG ---
 BLOCKING_PROMPTS = {
     "website",
     "year",
@@ -60,6 +66,7 @@ PROMPT_MODULES = {
     "move_files_2": "Scripts.Predictive_Report.move_files_2"
 }
 
+# --- ROUTES ---
 @app.route(RENDER_ENV, methods=["POST"])
 def dynamic_ingest_typeform():
     try:
