@@ -45,7 +45,7 @@ def run_prompt(data):
             logger.error("AI response was not valid JSON. Writing raw output.")
             formatted_result = raw_result
 
-        supabase_path = f"The_Big_Question/Predictive_Report/Ai_Responses/Client_Context/{run_id}.txt"
+        supabase_path = f"Predictive_Report/Ai_Responses/Client_Context/{run_id}.txt"
         write_supabase_file(supabase_path, formatted_result)
         logger.info(f"AI response written to Supabase at {supabase_path}")
 
