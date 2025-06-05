@@ -5,7 +5,7 @@ import re
 from logger import logger
 from Engine.Files.write_supabase_file import write_supabase_file
 
-SAVE_DIR = "The_Big_Question/Predictive_Report/Ai_Responses/Report_and_Section_Tables"
+SAVE_DIR = "Predictive_Report/Ai_Responses/Report_and_Section_Tables"
 
 # ─────────────────────────────────────────────
 # Write section tables (already working)
