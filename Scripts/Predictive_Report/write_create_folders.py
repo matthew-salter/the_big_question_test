@@ -53,7 +53,7 @@ def build_expected_paths(data):
     dated_folder = f"{target_variable}_{date_stamp}"
     context_folder = uppercase_path_segment(f"{commodity_raw}_in_the_{region_raw}_over_the_next_{time_range_raw}")
 
-    base_path = f"The_Big_Question/Predictive_Report/Completed_Reports/{client}"
+    base_path = f"Predictive_Report/Completed_Reports/{client}"
     context_path = f"{base_path}/{context_folder}"
     dated_path = f"{context_path}/{dated_folder}"
 
