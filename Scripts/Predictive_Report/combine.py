@@ -196,7 +196,7 @@ def run_prompt(data: dict) -> dict:
         formatted_output = build_output(kv_pairs, structure, section_tables)
         final_output = formatted_output.replace('\\n', '\n')
 
-        supabase_path = f"The_Big_Question/Predictive_Report/Ai_Responses/Combine/{run_id}.txt"
+        supabase_path = f"Predictive_Report/Ai_Responses/Combine/{run_id}.txt"
         write_supabase_file(supabase_path, final_output)
         logger.info(f"✅ Structured section output written to: {supabase_path}")
 
