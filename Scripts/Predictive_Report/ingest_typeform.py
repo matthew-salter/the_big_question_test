@@ -48,8 +48,8 @@ def process_typeform_submission(data):
 
         # Format filenames and Supabase paths
         date_str = datetime.utcnow().strftime("%d-%m-%Y")
-        question_context_path = f"The_Big_Question/Predictive_Report/Question_Context/{client}_question_context_{date_str}.txt"
-        logo_path = f"The_Big_Question/Predictive_Report/Logos/{client}_Logo_{date_str}.{logo_ext.lstrip('.')}"
+        question_context_path = f"Predictive_Report/Question_Context/{client}_question_context_{date_str}.txt"
+        logo_path = f"Predictive_Report/Logos/{client}_Logo_{date_str}.{logo_ext.lstrip('.')}"
 
         # Download and save the question context
         logger.info(f"📥 Downloading question context from: {question_context_url}")
