@@ -7,9 +7,8 @@ from Scripts.Predictive_Report.ingest_typeform import process_typeform_submissio
 
 app = Flask(__name__)
 
-RENDER_ENV = os.getenv("RENDER_ENV", "live")
+RENDER_ENV = os.getenv("RENDER_ENV")  # e.g. "/ingest-typeform" or "/ingest-typeform-test"
 
-# Prompts that should block until the result is returned
 BLOCKING_PROMPTS = {
     "website",
     "year",
@@ -32,7 +31,6 @@ BLOCKING_PROMPTS = {
     "move_files_2"
 }
 
-# Explicit static mapping of prompt names to module paths
 PROMPT_MODULES = {
     "website": "Scripts.Website_Year.website",
     "year": "Scripts.Website_Year.year",
@@ -62,32 +60,15 @@ PROMPT_MODULES = {
     "move_files_2": "Scripts.Predictive_Report.move_files_2"
 }
 
-
-@app.route("/ingest-typeform", methods=["POST"])
-def ingest_typeform():
-    if RENDER_ENV != "live":
-        return jsonify({"error": "This endpoint is only available in live environment."}), 403
+@app.route(RENDER_ENV, methods=["POST"])
+def dynamic_ingest_typeform():
     try:
         data = request.get_json(force=True)
-        logger.info("📩 Typeform webhook received [LIVE].")
+        logger.info(f"📩 Typeform webhook received via {RENDER_ENV}")
         process_typeform_submission(data)
         return jsonify({"status": "success", "message": "Files processed and saved to Supabase."})
     except Exception as e:
-        logger.exception("❌ Error handling Typeform submission [LIVE]")
-        return jsonify({"status": "error", "message": str(e)}), 500
-
-
-@app.route("/ingest-typeform-test", methods=["POST"])
-def ingest_typeform_test():
-    if RENDER_ENV != "dev":
-        return jsonify({"error": "This endpoint is only available in dev environment."}), 403
-    try:
-        data = request.get_json(force=True)
-        logger.info("📩 Typeform webhook received [DEV].")
-        process_typeform_submission(data)
-        return jsonify({"status": "success", "message": "Files processed and saved to Supabase."})
-    except Exception as e:
-        logger.exception("❌ Error handling Typeform submission [DEV]")
+        logger.exception(f"❌ Error handling Typeform submission via {RENDER_ENV}")
         return jsonify({"status": "error", "message": str(e)}), 500
 
 
