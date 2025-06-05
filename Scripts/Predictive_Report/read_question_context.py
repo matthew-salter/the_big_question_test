@@ -15,7 +15,7 @@ def run_prompt(data):
         # Ensure client format matches saved file name
         client_safe = client.strip().replace(" ", "_")
         date_str = datetime.utcnow().strftime("%d-%m-%Y")
-        supabase_path = f"The_Big_Question/Predictive_Report/Question_Context/{client_safe}_question_context_{date_str}.txt"
+        supabase_path = f"Predictive_Report/Question_Context/{client_safe}_question_context_{date_str}.txt"
 
         retries = 0
         while retries < MAX_RETRIES:
