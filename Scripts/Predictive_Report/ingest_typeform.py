@@ -48,20 +48,24 @@ def process_typeform_submission(data):
                 logo_url = answer["file_url"]
                 logo_ext = os.path.splitext(logo_url.split("/")[-1])[-1]  # e.g., .jpg or .png
 
+        # 🔍 Log what was parsed
+        logger.info(f"🔎 Parsed Typeform fields:\n  client={client}\n  question_context_url={question_context_url}\n  logo_url={logo_url}")
+
+        # 🚨 Guard clause — stops if any field missing
         if not client or not question_context_url or not logo_url:
             raise ValueError("Missing required fields: client, question context file, or logo")
 
-        # Format filenames and Supabase paths
+        # 📝 Format filenames and paths
         date_str = datetime.utcnow().strftime("%d-%m-%Y")
         question_context_path = f"Predictive_Report/Question_Context/{client}_question_context_{date_str}.txt"
         logo_path = f"Predictive_Report/Logos/{client}_Logo_{date_str}.{logo_ext.lstrip('.')}"
 
-        # Download and save the question context
+        # 📥 Download and save the question context
         logger.info(f"📥 Downloading question context from: {question_context_url}")
         question_context_data = download_file(question_context_url)
         write_supabase_file(question_context_path, question_context_data.decode("utf-8"))
 
-        # Download and save the logo
+        # 📥 Download and save the logo
         logger.info(f"📥 Downloading logo from: {logo_url}")
         logo_data = download_file(logo_url)
         write_supabase_file(logo_path, logo_data)
