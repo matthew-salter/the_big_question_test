@@ -1,6 +1,7 @@
 import os
 import requests
 from datetime import datetime
+from pathlib import Path
 from logger import logger
 from Engine.Files.write_supabase_file import write_supabase_file
 
@@ -46,10 +47,13 @@ def process_typeform_submission(data):
 
             elif field_id == logo_field_id:
                 logo_url = answer["file_url"]
-                logo_ext = os.path.splitext(logo_url.split("/")[-1])[-1]  # e.g., .jpg or .png
+                logo_filename = logo_url.split("/")[-1]
+                logo_ext = Path(logo_filename).suffix.lstrip(".")
+                if not logo_ext:
+                    raise ValueError(f"Could not determine file extension from logo_url: {logo_url}")
 
         # 🔍 Log what was parsed
-        logger.info(f"🔎 Parsed Typeform fields:\n  client={client}\n  question_context_url={question_context_url}\n  logo_url={logo_url}")
+        logger.info(f"🔎 Parsed Typeform fields:\n  client={client}\n  question_context_url={question_context_url}\n  logo_url={logo_url}\n  logo_ext={logo_ext}")
 
         # 🚨 Guard clause — stops if any field missing
         if not client or not question_context_url or not logo_url:
@@ -58,12 +62,20 @@ def process_typeform_submission(data):
         # 📝 Format filenames and paths
         date_str = datetime.utcnow().strftime("%d-%m-%Y")
         question_context_path = f"Predictive_Report/Question_Context/{client}_question_context_{date_str}.txt"
-        logo_path = f"Predictive_Report/Logos/{client}_Logo_{date_str}.{logo_ext.lstrip('.')}"
+        logo_path = f"Predictive_Report/Logos/{client}_Logo_{date_str}.{logo_ext}"
+
+        logger.info(f"🧭 Final Supabase paths:\n  Context: {question_context_path}\n  Logo: {logo_path}")
 
         # 📥 Download and save the question context
         logger.info(f"📥 Downloading question context from: {question_context_url}")
         question_context_data = download_file(question_context_url)
-        write_supabase_file(question_context_path, question_context_data.decode("utf-8"))
+
+        try:
+            decoded_context = question_context_data.decode("utf-8")
+        except UnicodeDecodeError as e:
+            raise ValueError(f"Failed to decode question context file as UTF-8: {e}")
+
+        write_supabase_file(question_context_path, decoded_context)
 
         # 📥 Download and save the logo
         logger.info(f"📥 Downloading logo from: {logo_url}")
