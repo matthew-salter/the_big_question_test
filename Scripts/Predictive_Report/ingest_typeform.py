@@ -4,10 +4,12 @@ from datetime import datetime
 from logger import logger
 from Engine.Files.write_supabase_file import write_supabase_file
 
+# --- ENV VARS ---
 client_field_id = os.getenv("CLIENT_FIELD_ID")
 question_context_field_id = os.getenv("QUESTION_CONTEXT_FIELD_ID")
 logo_field_id = os.getenv("LOGO_FIELD_ID")
 
+# --- HELPERS ---
 def download_file(url: str) -> bytes:
     """Downloads a file from a given URL and returns its binary content, with Typeform auth if needed."""
     headers = {}
@@ -23,7 +25,7 @@ def download_file(url: str) -> bytes:
     res.raise_for_status()
     return res.content
 
-
+# --- MAIN FUNCTION ---
 def process_typeform_submission(data):
     """Extracts client, context, and logo file from Typeform and writes to Supabase."""
     try:
@@ -33,18 +35,18 @@ def process_typeform_submission(data):
         logo_url = None
         logo_ext = None
 
-    for answer in answers:
-        field_id = answer["field"]["id"]
+        for answer in answers:
+            field_id = answer["field"]["id"]
 
-        if field_id == client_field_id:
-            client = answer["text"].strip().replace(" ", "_")
+            if field_id == client_field_id:
+                client = answer["text"].strip().replace(" ", "_")
 
-        elif field_id == question_context_field_id:
-            question_context_url = answer["file_url"]
+            elif field_id == question_context_field_id:
+                question_context_url = answer["file_url"]
 
-        elif field_id == logo_field_id:
-            logo_url = answer["file_url"]
-            logo_ext = os.path.splitext(logo_url.split("/")[-1])[-1]  # e.g., .jpg or .png
+            elif field_id == logo_field_id:
+                logo_url = answer["file_url"]
+                logo_ext = os.path.splitext(logo_url.split("/")[-1])[-1]  # e.g., .jpg or .png
 
         if not client or not question_context_url or not logo_url:
             raise ValueError("Missing required fields: client, question context file, or logo")
