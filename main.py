@@ -1,10 +1,13 @@
 from flask import Flask, request, jsonify
 import importlib
 import threading
+import os
 from logger import logger
 from Scripts.Predictive_Report.ingest_typeform import process_typeform_submission
 
 app = Flask(__name__)
+
+RENDER_ENV = os.getenv("RENDER_ENV", "live")
 
 # Prompts that should block until the result is returned
 BLOCKING_PROMPTS = {
@@ -59,15 +62,32 @@ PROMPT_MODULES = {
     "move_files_2": "Scripts.Predictive_Report.move_files_2"
 }
 
+
 @app.route("/ingest-typeform", methods=["POST"])
 def ingest_typeform():
+    if RENDER_ENV != "live":
+        return jsonify({"error": "This endpoint is only available in live environment."}), 403
     try:
         data = request.get_json(force=True)
-        logger.info("📩 Typeform webhook received.")
+        logger.info("📩 Typeform webhook received [LIVE].")
         process_typeform_submission(data)
         return jsonify({"status": "success", "message": "Files processed and saved to Supabase."})
     except Exception as e:
-        logger.exception("❌ Error handling Typeform submission")
+        logger.exception("❌ Error handling Typeform submission [LIVE]")
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
+@app.route("/ingest-typeform-test", methods=["POST"])
+def ingest_typeform_test():
+    if RENDER_ENV != "dev":
+        return jsonify({"error": "This endpoint is only available in dev environment."}), 403
+    try:
+        data = request.get_json(force=True)
+        logger.info("📩 Typeform webhook received [DEV].")
+        process_typeform_submission(data)
+        return jsonify({"status": "success", "message": "Files processed and saved to Supabase."})
+    except Exception as e:
+        logger.exception("❌ Error handling Typeform submission [DEV]")
         return jsonify({"status": "error", "message": str(e)}), 500
 
 
@@ -87,7 +107,6 @@ def dispatch_prompt():
         logger.info(f"Dispatching prompt asynchronously: {prompt_name}")
         result_container = {}
 
-        # Generate run_id upfront for non-blocking prompts
         import uuid
         if prompt_name not in BLOCKING_PROMPTS:
             run_id = data.get("run_id") or str(uuid.uuid4())
