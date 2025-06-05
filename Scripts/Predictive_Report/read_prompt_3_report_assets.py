@@ -52,7 +52,7 @@ def run_prompt(data):
         if not run_id:
             raise ValueError("Missing run_id in request payload")
 
-        supabase_path = f"The_Big_Question/Predictive_Report/Ai_Responses/Prompt_3_Report_Assets/{run_id}.txt"
+        supabase_path = f"Predictive_Report/Ai_Responses/Prompt_3_Report_Assets/{run_id}.txt"
 
         retries = 0
         while retries < MAX_RETRIES:
