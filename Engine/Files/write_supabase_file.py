@@ -5,7 +5,7 @@ from logger import logger
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_BUCKET = "panelitix"
-SUPABASE_ROOT_FOLDER = os.getenv("SUPABASE_ROOT_FOLDER", "The_Big_Question")  # 🔹 Add this line
+SUPABASE_ROOT_FOLDER = os.getenv("SUPABASE_ROOT_FOLDER")
 
 def write_supabase_file(path, content, content_type=None):
     if not SUPABASE_URL:
@@ -14,7 +14,7 @@ def write_supabase_file(path, content, content_type=None):
 
     # 🔹 Prepend root folder to path
     full_path = f"{SUPABASE_ROOT_FOLDER}/{path}"
-
+    logger.info(f"🧾 Final Supabase write path: {full_path}")
     url = f"{SUPABASE_URL}/storage/v1/object/{SUPABASE_BUCKET}/{full_path}"
     headers = get_supabase_headers()
 
