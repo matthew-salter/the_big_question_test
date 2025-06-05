@@ -8,9 +8,9 @@ SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_BUCKET = "panelitix"
 
 SOURCE_FOLDERS = [
-    "The_Big_Question/Predictive_Report/Logos",
-    "The_Big_Question/Predictive_Report/Question_Context",
-    "The_Big_Question/Predictive_Report/Ai_Responses/Report_and_Section_Tables"
+    "Predictive_Report/Logos",
+    "Predictive_Report/Question_Context",
+    "Predictive_Report/Ai_Responses/Report_and_Section_Tables"
 ]
 
 TARGET_SUFFIXES = [
