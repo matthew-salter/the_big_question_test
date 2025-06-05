@@ -296,7 +296,7 @@ Year:
 
 """
         final_text = f"{header}{combine_text.strip()}"
-        supabase_path = f"The_Big_Question/Predictive_Report/Ai_Responses/Format_Combine/{run_id}.txt"
+        supabase_path = f"Predictive_Report/Ai_Responses/Format_Combine/{run_id}.txt"
         write_supabase_file(supabase_path, final_text)
         logger.info(f"✅ New formatted file written to: {supabase_path}")
         try:
