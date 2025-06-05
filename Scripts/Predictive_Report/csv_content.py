@@ -131,7 +131,7 @@ def run_prompt(payload):
     logger.info("📦 Running csv_content.py (combined mode)")
 
     run_id = payload.get("run_id") or str(uuid.uuid4())
-    file_path = f"The_Big_Question/Predictive_Report/Ai_Responses/csv_Content/{run_id}.csv"
+    file_path = f"Predictive_Report/Ai_Responses/csv_Content/{run_id}.csv"
     raw_text = strip_excluded_blocks(payload.get("format_combine", ""))
 
     intro_outro = extract_intro_outro_assets(raw_text)
