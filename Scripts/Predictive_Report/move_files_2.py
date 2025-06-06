@@ -73,6 +73,11 @@ def copy_and_delete_files(stage_1_results: dict, expected_folders_str: str):
     logger.info("🚀 Starting Stage 3: File copy and cleanup")
     headers = get_supabase_headers()
     expected_folders = expected_folders_str.split(",")
+    # ✅ Ensure all target folders have the root prefix
+    expected_folders = [
+        f"{SUPABASE_ROOT_FOLDER}/{f}" if not f.startswith(SUPABASE_ROOT_FOLDER) else f
+        for f in expected_folders
+    ]
     suffix_map = defaultdict(list)
 
     for folder in expected_folders:
