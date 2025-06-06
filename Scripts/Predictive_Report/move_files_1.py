@@ -98,6 +98,11 @@ def run_prompt(data: dict) -> dict:
 
     folder_paths = [f.strip() for f in data["expected_folders"].split(",")]
     target_map = {p.split("/")[-1]: p for p in folder_paths}
+
+    # ✅ Add root folder prefix if missing
+    for key in target_map:
+        if not target_map[key].startswith(SUPABASE_ROOT_FOLDER):
+            target_map[key] = f"{SUPABASE_ROOT_FOLDER}/{target_map[key]}"
     skipped_files = []
 
     file_jobs = [
