@@ -11,7 +11,8 @@ def folder_exists(path: str) -> bool:
     """
     Checks whether a given folder exists in Supabase by confirming the `.keep` marker is present.
     """
-    keep_file_path = f"{path}/.keep"
+    full_path = f"{SUPABASE_ROOT_FOLDER}/{path}"
+    keep_file_path = f"{full_path}/.keep"
     url = f"{SUPABASE_URL}/storage/v1/object/info/{SUPABASE_BUCKET}/{keep_file_path}"
     headers = get_supabase_headers()
 
