@@ -121,9 +121,9 @@ def run_prompt(data: dict) -> dict:
             to_path = f"{to_folder}/{prefix}_{run_id}_.{ext}"
             move_supabase_file(from_path, to_path, skipped_files)
 
-    move_folder_contents("{SUPABASE_ROOT_FOLDER}/Predictive_Report/Logos", target_map.get("Logos", ""), skipped_files)
-    move_folder_contents("{SUPABASE_ROOT_FOLDER}/Predictive_Report/Question_Context", target_map.get("Question_Context", ""), skipped_files)
-    move_folder_contents("{SUPABASE_ROOT_FOLDER}/Predictive_Report/Ai_Responses/Report_and_Section_Tables", target_map.get("Report_Tables", target_map.get("Report_and_Section_Tables", "")), skipped_files)
+    move_folder_contents(f"{SUPABASE_ROOT_FOLDER}/Predictive_Report/Logos", target_map.get("Logos", ""), skipped_files)
+    move_folder_contents(f"{SUPABASE_ROOT_FOLDER}/Predictive_Report/Question_Context", target_map.get("Question_Context", ""), skipped_files)
+    move_folder_contents(f"{SUPABASE_ROOT_FOLDER}/Predictive_Report/Ai_Responses/Report_and_Section_Tables", target_map.get("Report_Tables", target_map.get("Report_and_Section_Tables", "")), skipped_files)
 
     copy_supabase_file(f"{SUPABASE_ROOT_FOLDER}/General_Files/Panelitix_Logo.png",f"{target_map.get('Logos', '')}/Panelitix_Logo.png",skipped_files)
 
