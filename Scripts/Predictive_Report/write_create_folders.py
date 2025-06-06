@@ -8,6 +8,7 @@ from logger import logger
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_BUCKET = "panelitix"
+SUPABASE_ROOT_FOLDER = os.getenv("SUPABASE_ROOT_FOLDER")
 
 def normalise_path_segment(segment):
     return segment.strip().replace(" ", "_").title()
@@ -17,7 +18,8 @@ def uppercase_path_segment(segment):
 
 def create_folder(path):
     """Create a folder by uploading a .keep file inside it."""
-    keep_file_path = f"{path}/.keep"
+    full_path = f"{SUPABASE_ROOT_FOLDER}/{path}"
+    keep_file_path = f"{full_path}/.keep"
     url = f"{SUPABASE_URL}/storage/v1/object/{SUPABASE_BUCKET}/{keep_file_path}"
     headers = get_supabase_headers()
     headers["Content-Type"] = "text/plain"
