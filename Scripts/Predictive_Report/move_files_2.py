@@ -6,7 +6,6 @@ from Engine.Files.auth import get_supabase_headers
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_BUCKET = "panelitix"
-SUPABASE_ROOT_FOLDER = os.getenv("SUPABASE_ROOT_FOLDER")
 
 SOURCE_FOLDERS = [
     "Predictive_Report/Logos",
