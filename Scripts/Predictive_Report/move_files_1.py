@@ -5,6 +5,7 @@ from logger import logger
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_BUCKET = "panelitix"
+SUPABASE_ROOT_FOLDER = os.getenv("SUPABASE_ROOT_FOLDER")
 
 def move_supabase_file(from_path, to_path, skipped_files):
     headers = get_supabase_headers()
