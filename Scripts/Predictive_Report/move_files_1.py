@@ -71,9 +71,15 @@ def copy_supabase_file(from_path, to_path, skipped_files):
 def delete_keep_files(folder_paths):
     headers = get_supabase_headers()
     for folder in folder_paths:
-        keep_file = f"{folder}/.keep"
+        # ✅ Ensure root prefix
+        if not folder.startswith(SUPABASE_ROOT_FOLDER):
+            folder = f"{SUPABASE_ROOT_FOLDER}/{folder}"
+        keep_file = f"{folder.rstrip('/')}/.keep"
         url = f"{SUPABASE_URL}/storage/v1/object/{SUPABASE_BUCKET}/{keep_file}"
+
+        logger.info(f"🧹 Attempting delete of .keep: {keep_file}")
         resp = requests.delete(url, headers=headers)
+
         if resp.status_code in (200, 204):
             logger.info(f"🧹 Deleted .keep file: {keep_file}")
         elif resp.status_code == 404:
