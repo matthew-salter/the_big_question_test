@@ -9,9 +9,9 @@ SUPABASE_BUCKET = "panelitix"
 SUPABASE_ROOT_FOLDER = os.getenv("SUPABASE_ROOT_FOLDER")
 
 SOURCE_FOLDERS = [
-    "{SUPABASE_ROOT_FOLDER}/Predictive_Report/Logos",
-    "{SUPABASE_ROOT_FOLDER}/Predictive_Report/Question_Context",
-    "{SUPABASE_ROOT_FOLDER}/Predictive_Report/Ai_Responses/Report_and_Section_Tables"
+    f"{SUPABASE_ROOT_FOLDER}/Predictive_Report/Logos",
+    f"{SUPABASE_ROOT_FOLDER}/Predictive_Report/Question_Context",
+    f"{SUPABASE_ROOT_FOLDER}/Predictive_Report/Ai_Responses/Report_and_Section_Tables"
 ]
 
 TARGET_SUFFIXES = [
