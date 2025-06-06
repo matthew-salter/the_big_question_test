@@ -9,15 +9,15 @@ SUPABASE_BUCKET = "panelitix"
 SUPABASE_ROOT_FOLDER = os.getenv("SUPABASE_ROOT_FOLDER")
 
 SOURCE_FOLDERS = [
-    "Predictive_Report/Logos",
-    "Predictive_Report/Question_Context",
-    "Predictive_Report/Ai_Responses/Report_and_Section_Tables"
+    "{SUPABASE_ROOT_FOLDER}/Predictive_Report/Logos",
+    "{SUPABASE_ROOT_FOLDER}/Predictive_Report/Question_Context",
+    "{SUPABASE_ROOT_FOLDER}/Predictive_Report/Ai_Responses/Report_and_Section_Tables"
 ]
 
 TARGET_SUFFIXES = [
-    "/Report_and_Section_Tables",
-    "/Logos",
-    "/Question_Context"
+    f"/Report_and_Section_Tables",
+    f"/Logos",
+    f"/Question_Context"
 ]
 
 def list_files_in_folder(folder_path: str):
