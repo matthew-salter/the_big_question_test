@@ -37,7 +37,7 @@ def background_task(run_id: str, raw_data: dict):
 
     try:
         raw_prompt = raw_data.get("prompt_1_thinking", "")
-        prompt_data = json.loads(raw_prompt)
+        prompt_data = yaml.safe_load(raw_prompt)  # ✅ correct for YAML-style text
         summary = extract_summary_text(prompt_data)
     except Exception as e:
         summary = f"Failed to parse data: {str(e)}"
