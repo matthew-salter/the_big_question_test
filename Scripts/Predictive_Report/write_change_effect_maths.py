@@ -8,7 +8,7 @@ from Engine.Files.write_supabase_file import write_supabase_file
 def background_task(run_id: str):
     # Manual pathing logic — exact match to working version
     supabase_root = os.getenv("SUPABASE_ROOT_FOLDER")
-    sub_path = "Predictive_Report/Ai_Responses/Change_Effect_Maths"
+    sub_path = "Predictive_Report/Ai_Responses/Change_Effect_Maths//{run_id}.txt"
     full_path = f"{supabase_root}/{sub_path}"
     filename = f"{run_id}.txt"
     file_content = "TEST FILE"
