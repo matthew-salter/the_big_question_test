@@ -1,6 +1,6 @@
 import json
 from datetime import datetime
-from write_supabase_file import write_file_to_supabase
+from Engine.Files.write_supabase_file import write_supabase_file
 
 def main():
     # Create test filename and content
