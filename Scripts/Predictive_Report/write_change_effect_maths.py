@@ -1,5 +1,3 @@
-# Scripts/Predictive_Report/write_change_effect_maths.py
-
 import os
 import json
 import uuid
