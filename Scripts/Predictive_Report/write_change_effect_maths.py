@@ -6,13 +6,9 @@ from threading import Thread
 from Engine.Files.write_supabase_file import write_supabase_file
 
 def background_task(run_id: str):
-    supabase_root = os.getenv("SUPABASE_ROOT_FOLDER")
-    relative_path = f"Predictive_Report/Ai_Responses/Change_Effect_Maths/{run_id}.txt"
-    full_path = f"{supabase_root}/{relative_path}"
-    content = "TEST FILE"
-
-    # FINAL: write the full relative path to Supabase
-    write_supabase_file(full_path, None, content)
+    filename = f"{run_id}.txt"
+    supabase_path = f"Predictive_Report/Ai_Responses/Change_Effect_Maths/{filename}"
+    write_supabase_file(supabase_path, "TEST FILE")
 
 def run_prompt(data):
     run_id = str(uuid.uuid4())
