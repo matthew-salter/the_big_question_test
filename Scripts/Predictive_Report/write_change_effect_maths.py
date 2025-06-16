@@ -1,24 +1,26 @@
-import json
+# Scripts/Predictive_Report/write_change_effect_maths.py
+
 import os
 import uuid
 from threading import Thread
-from logger import logger
 from Engine.Files.write_supabase_file import write_supabase_file
 
 def background_task(run_id: str):
-    subdirectory = "Predictive_Report/Ai_Responses/Change_Effect_Maths"
+    # Manual pathing logic — exact match to working version
+    supabase_root = os.getenv("SUPABASE_ROOT_FOLDER", "The_Big_Question_test")
+    sub_path = "Predictive_Report/Ai_Responses/Change_Effect_Maths"
+    full_path = f"{supabase_root}/{sub_path}"
     filename = f"{run_id}.txt"
-    content = "TEST FILE"
+    file_content = "TEST FILE"
 
-    # Write "TEST FILE" to correct path using correct name
-    write_supabase_file(subdirectory, filename, content)
+    # Pass manually composed path and file content
+    write_supabase_file(full_path, filename, file_content)
 
 def run_prompt(data):
-    # Generate UUID
     run_id = str(uuid.uuid4())
 
-    # Start background file write
+    # Spawn background thread with correct run_id
     Thread(target=background_task, args=(run_id,)).start()
 
-    # Return UUID immediately to Zapier
+    # Return UUID to Zapier immediately
     return {"run_id": run_id}
