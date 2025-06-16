@@ -1,25 +1,23 @@
 import os
-import json
 import uuid
-from Engine.Files.write_supabase_file import write_supabase_file
-from datetime import datetime
 from threading import Thread
+from Engine.Files.write_supabase_file import write_supabase_file
 
-def background_task(prompt_payload, filename, subdirectory):
+def background_task(run_id: str, subdirectory: str):
+    filename = f"{run_id}.txt"
     content = "TEST FILE"
     write_supabase_file(subdirectory, filename, content)
 
 def run_prompt(data):
-    # Generate UUID for this run
+    # Generate UUID for filename and response
     run_id = str(uuid.uuid4())
+    filename = f"{run_id}.txt"
 
-    # Extract payload info
-    prompt_payload = data.get("prompt", "")
-    filename = data.get("filename", f"{run_id}.txt")
-    subdirectory = data.get("subdirectory", "Predictive_Report/Ai_Responses/Change_Effect_Maths")
+    # Always write to correct target directory
+    subdirectory = "Predictive_Report/Ai_Responses/Change_Effect_Maths"
 
-    # Trigger Supabase write in background
-    Thread(target=background_task, args=(prompt_payload, filename, subdirectory)).start()
+    # Run background write
+    Thread(target=background_task, args=(run_id, subdirectory)).start()
 
-    # Return UUID immediately to Zapier
-    return {"run_id": run_id}
+    # Return UUID to Zapier immediately
+    return { "run_id": run_id }
