@@ -1,6 +1,7 @@
 import os
 import uuid
 from threading import Thread
+from logger import logger
 from Engine.Files.write_supabase_file import write_supabase_file
 
 def background_task(run_id: str, subdirectory: str):
