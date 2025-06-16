@@ -1,4 +1,6 @@
+import uuid
 import json
+from logger import logger
 from datetime import datetime
 from Engine.Files.write_supabase_file import write_supabase_file
 
