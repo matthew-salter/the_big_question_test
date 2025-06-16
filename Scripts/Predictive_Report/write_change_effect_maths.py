@@ -34,7 +34,8 @@ def background_task(run_id: str, raw_data: dict):
     supabase_path = f"Predictive_Report/Ai_Responses/Change_Effect_Maths/{filename}"
 
     try:
-        prompt_data = raw_data.get("prompt_1_thinking", {})
+        raw_prompt = raw_data.get("prompt_1_thinking", "")
+        prompt_data = json.loads(raw_prompt)
         summary = extract_summary_text(prompt_data)
     except Exception as e:
         summary = f"Failed to parse data: {str(e)}"
