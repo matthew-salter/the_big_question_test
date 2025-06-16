@@ -11,7 +11,7 @@ def run_prompt(data):
     subdirectory = data.get("subdirectory", "The_Big_Question/Predictive_Report/Ai_Responses/Change_Effect_Maths")
 
     # Write file to Supabase using your existing util
-    success = write_file_to_supabase(subdirectory, filename, payload_str)
+    success = write_supabase_file(subdirectory, filename, payload_str)
 
     return {
         "status": "success" if success else "failed",
