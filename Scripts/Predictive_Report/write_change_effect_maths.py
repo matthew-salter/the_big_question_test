@@ -1,20 +1,27 @@
-import uuid
+# Scripts/Predictive_Report/write_change_effect_maths.py
+
+import os
 import json
-from logger import logger
-from datetime import datetime
+import uuid
 from Engine.Files.write_supabase_file import write_supabase_file
+from datetime import datetime
+from threading import Thread
+
+def background_task(prompt_payload, filename, subdirectory):
+    content = "TEST FILE"
+    write_supabase_file(subdirectory, filename, content)
 
 def run_prompt(data):
-    # Pull data from Zapier webhook payload
-    payload_str = data.get("prompt", "TEST FILE")  # fallback to test text if none
-    filename = data.get("filename", f"change_effect_test_{datetime.utcnow().strftime('%Y%m%dT%H%M%SZ')}.txt")
+    # Generate UUID for this run
+    run_id = str(uuid.uuid4())
+
+    # Extract payload info
+    prompt_payload = data.get("prompt", "")
+    filename = data.get("filename", f"{run_id}.txt")
     subdirectory = data.get("subdirectory", "The_Big_Question/Predictive_Report/Ai_Responses/Change_Effect_Maths")
 
-    # Write file to Supabase using your existing util
-    success = write_supabase_file(subdirectory, filename, payload_str)
+    # Trigger Supabase write in background
+    Thread(target=background_task, args=(prompt_payload, filename, subdirectory)).start()
 
-    return {
-        "status": "success" if success else "failed",
-        "filename": filename,
-        "path": f"{subdirectory}/{filename}",
-    }
+    # Return UUID immediately to Zapier
+    return {"run_id": run_id}
