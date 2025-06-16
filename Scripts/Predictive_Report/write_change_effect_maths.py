@@ -16,7 +16,7 @@ def run_prompt(data):
     # Extract payload info
     prompt_payload = data.get("prompt", "")
     filename = data.get("filename", f"{run_id}.txt")
-    subdirectory = data.get("subdirectory", "The_Big_Question/Predictive_Report/Ai_Responses/Change_Effect_Maths")
+    subdirectory = data.get("subdirectory", "Predictive_Report/Ai_Responses/Change_Effect_Maths")
 
     # Trigger Supabase write in background
     Thread(target=background_task, args=(prompt_payload, filename, subdirectory)).start()
