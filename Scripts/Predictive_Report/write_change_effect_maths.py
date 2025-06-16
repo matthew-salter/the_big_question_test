@@ -21,12 +21,15 @@ def compute_summary_text(prompt_1_thinking: dict) -> str:
         except ValueError:
             section_makeup = 0.0
 
+        # Section header
         output_lines.append(f"{section_key}:")
         output_lines.append(f"Section Title: {section_title}")
         output_lines.append(f"Section MakeUp: {format_percent(section_makeup)}")
 
+        # Sub-sections
         sub_section_effects = []
         sub_section_number = 1
+        sub_section_lines = []
 
         for sub_key in sorted(section.keys()):
             sub = section[sub_key]
@@ -50,22 +53,25 @@ def compute_summary_text(prompt_1_thinking: dict) -> str:
 
                 sub_section_effects.append(sub_effect)
 
-                output_lines.append(f"Sub-Section {sub_section_number}:")
-                output_lines.append(f"Sub-Section Title: {sub_title}")
-                output_lines.append(f"Sub-Section MakeUp: {format_percent(sub_makeup)}")
-                output_lines.append(f"Sub-Section Change: {format_percent(sub_change)}")
-                output_lines.append(f"Sub-Section Effect: {format_percent(sub_effect)}")
+                sub_section_lines.append(f"Sub-Section {sub_section_number}:")
+                sub_section_lines.append(f"Sub-Section Title: {sub_title}")
+                sub_section_lines.append(f"Sub-Section MakeUp: {format_percent(sub_makeup)}")
+                sub_section_lines.append(f"Sub-Section Change: {format_percent(sub_change)}")
+                sub_section_lines.append(f"Sub-Section Effect: {format_percent(sub_effect)}")
                 sub_section_number += 1
 
+        # Section totals
         section_change = sum(sub_section_effects)
         section_effect = (section_makeup / 100) * section_change
+        output_lines.append(f"Section Change: {format_percent(section_change)}")
+        output_lines.append(f"Section Effect: {format_percent(section_effect)}")
 
-        output_lines.insert(-sub_section_number - 1, f"Section Change: {format_percent(section_change)}")
-        output_lines.insert(-sub_section_number - 1, f"Section Effect: {format_percent(section_effect)}")
+        # Append sub-sections after
+        output_lines.extend(sub_section_lines)
         output_lines.append("")  # spacer between sections
 
     return "\n".join(output_lines)
-
+    
 def background_task(run_id: str, raw_data: dict):
     filename = f"{run_id}.txt"
     supabase_path = f"Predictive_Report/Ai_Responses/Change_Effect_Maths/{filename}"
