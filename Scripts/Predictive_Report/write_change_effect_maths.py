@@ -1,11 +1,17 @@
 import uuid
 import yaml
 from threading import Thread
+from logger import logger
 from decimal import Decimal, ROUND_HALF_UP
 from Engine.Files.write_supabase_file import write_supabase_file
 
-def format_percent(value: float) -> str:
-    return f"{Decimal(value).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)}%"
+# Format section/sub-section makeup as integer percentage
+def format_integer_percent(value: float) -> str:
+    return f"{int(round(value))}%"
+
+# Format change/effect as 1 decimal percentage (round-half-up)
+def format_decimal_percent(value: float) -> str:
+    return f"{Decimal(value).quantize(Decimal('0.1'), rounding=ROUND_HALF_UP)}%"
 
 def compute_summary_text(prompt_1_thinking: dict) -> str:
     output_lines = []
@@ -21,12 +27,10 @@ def compute_summary_text(prompt_1_thinking: dict) -> str:
         except ValueError:
             section_makeup = 0.0
 
-        # Section header
         output_lines.append(f"{section_key}:")
         output_lines.append(f"Section Title: {section_title}")
-        output_lines.append(f"Section MakeUp: {format_percent(section_makeup)}")
+        output_lines.append(f"Section MakeUp: {format_integer_percent(section_makeup)}")
 
-        # Sub-sections
         sub_section_effects = []
         sub_section_number = 1
         sub_section_lines = []
@@ -55,23 +59,21 @@ def compute_summary_text(prompt_1_thinking: dict) -> str:
 
                 sub_section_lines.append(f"Sub-Section {sub_section_number}:")
                 sub_section_lines.append(f"Sub-Section Title: {sub_title}")
-                sub_section_lines.append(f"Sub-Section MakeUp: {format_percent(sub_makeup)}")
-                sub_section_lines.append(f"Sub-Section Change: {format_percent(sub_change)}")
-                sub_section_lines.append(f"Sub-Section Effect: {format_percent(sub_effect)}")
+                sub_section_lines.append(f"Sub-Section MakeUp: {format_integer_percent(sub_makeup)}")
+                sub_section_lines.append(f"Sub-Section Change: {format_decimal_percent(sub_change)}")
+                sub_section_lines.append(f"Sub-Section Effect: {format_decimal_percent(sub_effect)}")
                 sub_section_number += 1
 
-        # Section totals
         section_change = sum(sub_section_effects)
         section_effect = (section_makeup / 100) * section_change
-        output_lines.append(f"Section Change: {format_percent(section_change)}")
-        output_lines.append(f"Section Effect: {format_percent(section_effect)}")
+        output_lines.append(f"Section Change: {format_decimal_percent(section_change)}")
+        output_lines.append(f"Section Effect: {format_decimal_percent(section_effect)}")
 
-        # Append sub-sections after
         output_lines.extend(sub_section_lines)
         output_lines.append("")  # spacer between sections
 
     return "\n".join(output_lines)
-    
+
 def background_task(run_id: str, raw_data: dict):
     filename = f"{run_id}.txt"
     supabase_path = f"Predictive_Report/Ai_Responses/Change_Effect_Maths/{filename}"
