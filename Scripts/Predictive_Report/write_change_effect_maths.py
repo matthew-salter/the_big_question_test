@@ -1,50 +1,54 @@
 import uuid
 import yaml
+import json
 from threading import Thread
-from logger import logger
 from decimal import Decimal, ROUND_HALF_UP
 from Engine.Files.write_supabase_file import write_supabase_file
 
-# Format section/sub-section makeup as integer percentage
+# --- Formatters ---
 def format_integer_percent(value: float) -> str:
     return f"{int(round(value))}%"
 
-# Format change/effect as 1 decimal percentage (round-half-up)
 def format_decimal_percent(value: float) -> str:
     return f"{Decimal(value).quantize(Decimal('0.1'), rounding=ROUND_HALF_UP)}%"
 
-def compute_summary_text(prompt_1_thinking: dict) -> str:
-    output_lines = []
+# --- Core transformation ---
+def build_structured_output(prompt_1_thinking: dict) -> dict:
+    result = {}
 
     for section_key in sorted(prompt_1_thinking.keys()):
         if not section_key.lower().startswith("section "):
             continue
-        section = prompt_1_thinking[section_key]
-        section_title = section.get("Section Title", "").strip()
-        section_makeup_str = section.get("Section MakeUp", "0%").strip().replace('%', '')
+        section_data = prompt_1_thinking[section_key]
+        section_output = {}
+        sub_section_effects = []
+
+        section_output["Section Title"] = section_data.get("Section Title", "").strip()
+        section_output["Section Summary"] = section_data.get("Section Summary", "").strip()
+
+        section_makeup_str = section_data.get("Section MakeUp", "0%").strip().replace('%', '')
         try:
             section_makeup = float(section_makeup_str)
         except ValueError:
             section_makeup = 0.0
+        section_output["Section MakeUp"] = format_integer_percent(section_makeup)
 
-        output_lines.append(f"{section_key}:")
-        output_lines.append(f"Section Title: {section_title}")
-        output_lines.append(f"Section MakeUp: {format_integer_percent(section_makeup)}")
+        if "Section Related Article" in section_data:
+            section_output["Section Related Article"] = section_data["Section Related Article"]
 
-        sub_section_effects = []
-        sub_section_number = 1
-        sub_section_lines = []
-
-        for sub_key in sorted(section.keys()):
-            sub = section[sub_key]
+        for sub_key in sorted(section_data.keys()):
+            sub_data = section_data[sub_key]
             if (
-                isinstance(sub, dict)
+                isinstance(sub_data, dict)
                 and sub_key.lower().startswith("sub-section ")
-                and "Sub-Section Title" in sub
+                and "Sub-Section Title" in sub_data
             ):
-                sub_title = sub.get("Sub-Section Title", "").strip()
-                sub_makeup_str = sub.get("Sub-Section MakeUp", "0%").strip().replace('%', '')
-                sub_change_str = sub.get("Sub-Section Change", "0%").strip().replace('%', '')
+                sub_output = {}
+                sub_output["Sub-Section Title"] = sub_data.get("Sub-Section Title", "").strip()
+                sub_output["Sub-Section Summary"] = sub_data.get("Sub-Section Summary", "").strip()
+
+                sub_makeup_str = sub_data.get("Sub-Section MakeUp", "0%").strip().replace('%', '')
+                sub_change_str = sub_data.get("Sub-Section Change", "0%").strip().replace('%', '')
 
                 try:
                     sub_makeup = float(sub_makeup_str)
@@ -55,37 +59,40 @@ def compute_summary_text(prompt_1_thinking: dict) -> str:
                     sub_change = 0.0
                     sub_effect = 0.0
 
-                sub_section_effects.append(sub_effect)
+                sub_output["Sub-Section MakeUp"] = format_integer_percent(sub_makeup)
+                sub_output["Sub-Section Change"] = format_decimal_percent(sub_change)
+                sub_output["Sub-Section Effect"] = format_decimal_percent(sub_effect)
 
-                sub_section_lines.append(f"Sub-Section {sub_section_number}:")
-                sub_section_lines.append(f"Sub-Section Title: {sub_title}")
-                sub_section_lines.append(f"Sub-Section MakeUp: {format_integer_percent(sub_makeup)}")
-                sub_section_lines.append(f"Sub-Section Change: {format_decimal_percent(sub_change)}")
-                sub_section_lines.append(f"Sub-Section Effect: {format_decimal_percent(sub_effect)}")
-                sub_section_number += 1
+                if "Sub-Section Related Article" in sub_data:
+                    sub_output["Sub-Section Related Article"] = sub_data["Sub-Section Related Article"]
+
+                section_output[sub_key] = sub_output
+                sub_section_effects.append(sub_effect)
 
         section_change = sum(sub_section_effects)
         section_effect = (section_makeup / 100) * section_change
-        output_lines.append(f"Section Change: {format_decimal_percent(section_change)}")
-        output_lines.append(f"Section Effect: {format_decimal_percent(section_effect)}")
 
-        output_lines.extend(sub_section_lines)
-        output_lines.append("")  # spacer between sections
+        section_output["Section Change"] = format_decimal_percent(section_change)
+        section_output["Section Effect"] = format_decimal_percent(section_effect)
 
-    return "\n".join(output_lines)
+        result[section_key] = section_output
 
+    return result
+
+# --- Write logic ---
 def background_task(run_id: str, raw_data: dict):
-    filename = f"{run_id}.txt"
+    filename = f"{run_id}.json"
     supabase_path = f"Predictive_Report/Ai_Responses/Change_Effect_Maths/{filename}"
 
     try:
         raw_prompt = raw_data.get("prompt_1_thinking", "")
         prompt_data = yaml.safe_load(raw_prompt)
-        summary = compute_summary_text(prompt_data)
+        structured_output = build_structured_output(prompt_data)
+        json_output = json.dumps(structured_output, indent=2)
     except Exception as e:
-        summary = f"Failed to parse data: {str(e)}"
+        json_output = json.dumps({"error": f"Failed to parse or process data: {str(e)}"})
 
-    write_supabase_file(supabase_path, summary)
+    write_supabase_file(supabase_path, json_output)
 
 def run_prompt(data):
     run_id = str(uuid.uuid4())
