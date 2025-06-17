@@ -2,6 +2,7 @@ import uuid
 import yaml
 import json
 from threading import Thread
+from logger import logger
 from decimal import Decimal, ROUND_HALF_UP
 from Engine.Files.write_supabase_file import write_supabase_file
 
@@ -20,24 +21,33 @@ def build_structured_output(prompt_1_thinking: dict) -> dict:
         if not section_key.lower().startswith("section "):
             continue
         section_data = prompt_1_thinking[section_key]
-        section_output = {}
         sub_sections = {}
         sub_section_effects = []
 
-        # Top-level section data
-        section_output["Section Title"] = section_data.get("Section Title", "").strip()
-        section_output["Section Summary"] = section_data.get("Section Summary", "").strip()
+        # Extract top-level section metadata
+        section_title = section_data.get("Section Title", "").strip()
+        section_summary = section_data.get("Section Summary", "").strip()
         section_makeup_str = section_data.get("Section MakeUp", "0%").strip().replace('%', '')
+
         try:
             section_makeup = float(section_makeup_str)
         except ValueError:
             section_makeup = 0.0
+
+        # --- Build ordered section dict ---
+        section_output = {}
+        section_output["Section Title"] = section_title
+        section_output["Section Summary"] = section_summary
         section_output["Section MakeUp"] = format_integer_percent(section_makeup)
+
+        # Placeholder – these get filled after sub-sections processed
+        section_output["Section Change"] = None
+        section_output["Section Effect"] = None
 
         if "Section Related Article" in section_data:
             section_output["Section Related Article"] = section_data["Section Related Article"]
 
-        # Extract and calculate sub-sections
+        # --- Sub-section processing ---
         for sub_key in sorted(section_data.keys()):
             sub_data = section_data[sub_key]
             if (
@@ -71,13 +81,13 @@ def build_structured_output(prompt_1_thinking: dict) -> dict:
                 sub_sections[sub_key] = sub_output
                 sub_section_effects.append(sub_effect)
 
-        # Calculate and insert section-level change/effect
+        # --- Now calculate section-level metrics
         section_change = sum(sub_section_effects)
         section_effect = (section_makeup / 100) * section_change
         section_output["Section Change"] = format_decimal_percent(section_change)
         section_output["Section Effect"] = format_decimal_percent(section_effect)
 
-        # Append sub-sections after Section Effect
+        # Append sub-sections after all section-level fields
         for sub_key, sub_data in sub_sections.items():
             section_output[sub_key] = sub_data
 
