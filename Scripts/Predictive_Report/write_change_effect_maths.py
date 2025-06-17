@@ -21,11 +21,12 @@ def build_structured_output(prompt_1_thinking: dict) -> dict:
             continue
         section_data = prompt_1_thinking[section_key]
         section_output = {}
+        sub_sections = {}
         sub_section_effects = []
 
+        # Top-level section data
         section_output["Section Title"] = section_data.get("Section Title", "").strip()
         section_output["Section Summary"] = section_data.get("Section Summary", "").strip()
-
         section_makeup_str = section_data.get("Section MakeUp", "0%").strip().replace('%', '')
         try:
             section_makeup = float(section_makeup_str)
@@ -36,6 +37,7 @@ def build_structured_output(prompt_1_thinking: dict) -> dict:
         if "Section Related Article" in section_data:
             section_output["Section Related Article"] = section_data["Section Related Article"]
 
+        # Extract and calculate sub-sections
         for sub_key in sorted(section_data.keys()):
             sub_data = section_data[sub_key]
             if (
@@ -66,14 +68,18 @@ def build_structured_output(prompt_1_thinking: dict) -> dict:
                 if "Sub-Section Related Article" in sub_data:
                     sub_output["Sub-Section Related Article"] = sub_data["Sub-Section Related Article"]
 
-                section_output[sub_key] = sub_output
+                sub_sections[sub_key] = sub_output
                 sub_section_effects.append(sub_effect)
 
+        # Calculate and insert section-level change/effect
         section_change = sum(sub_section_effects)
         section_effect = (section_makeup / 100) * section_change
-
         section_output["Section Change"] = format_decimal_percent(section_change)
         section_output["Section Effect"] = format_decimal_percent(section_effect)
+
+        # Append sub-sections after Section Effect
+        for sub_key, sub_data in sub_sections.items():
+            section_output[sub_key] = sub_data
 
         result[section_key] = section_output
 
@@ -81,18 +87,18 @@ def build_structured_output(prompt_1_thinking: dict) -> dict:
 
 # --- Write logic ---
 def background_task(run_id: str, raw_data: dict):
-    filename = f"{run_id}.json"
+    filename = f"{run_id}.txt"
     supabase_path = f"Predictive_Report/Ai_Responses/Change_Effect_Maths/{filename}"
 
     try:
         raw_prompt = raw_data.get("prompt_1_thinking", "")
         prompt_data = yaml.safe_load(raw_prompt)
         structured_output = build_structured_output(prompt_data)
-        json_output = json.dumps(structured_output, indent=2)
+        text_output = json.dumps(structured_output, indent=2)
     except Exception as e:
-        json_output = json.dumps({"error": f"Failed to parse or process data: {str(e)}"})
+        text_output = f"Failed to process data: {str(e)}"
 
-    write_supabase_file(supabase_path, json_output)
+    write_supabase_file(supabase_path, text_output)
 
 def run_prompt(data):
     run_id = str(uuid.uuid4())
