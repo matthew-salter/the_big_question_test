@@ -7,11 +7,14 @@ from decimal import Decimal, ROUND_HALF_UP
 from Engine.Files.write_supabase_file import write_supabase_file
 
 # --- Formatters ---
-def format_integer_percent(value: float) -> str:
-    return f"{int(round(value))}%"
+def format_integer_percent(value) -> str:
+    return f"{int(round(Decimal(value)))}%"
 
-def format_decimal_percent(value: float) -> str:
+def format_decimal_percent(value) -> str:
     return f"{Decimal(value).quantize(Decimal('0.1'), rounding=ROUND_HALF_UP)}%"
+
+def quantize_1dp(value) -> Decimal:
+    return Decimal(value).quantize(Decimal('0.1'), rounding=ROUND_HALF_UP)
 
 # --- Core transformation ---
 def build_structured_output(prompt_1_thinking: dict) -> dict:
@@ -24,22 +27,22 @@ def build_structured_output(prompt_1_thinking: dict) -> dict:
         sub_sections = {}
         sub_section_effects = []
 
-        # Section metadata
         section_title = section_data.get("Section Title", "").strip()
         section_summary = section_data.get("Section Summary", "").strip()
         section_makeup_str = section_data.get("Section MakeUp", "0%").strip().replace('%', '')
 
         try:
-            section_makeup = round(float(section_makeup_str), 1)
-        except ValueError:
-            section_makeup = 0.0
+            section_makeup = quantize_1dp(section_makeup_str)
+        except Exception:
+            section_makeup = Decimal("0.0")
 
-        section_output = {}
-        section_output["Section Title"] = section_title
-        section_output["Section Summary"] = section_summary
-        section_output["Section MakeUp"] = format_integer_percent(section_makeup)
-        section_output["Section Change"] = None
-        section_output["Section Effect"] = None
+        section_output = {
+            "Section Title": section_title,
+            "Section Summary": section_summary,
+            "Section MakeUp": format_integer_percent(section_makeup),
+            "Section Change": None,
+            "Section Effect": None
+        }
 
         if "Section Related Article" in section_data:
             section_output["Section Related Article"] = section_data["Section Related Article"]
@@ -59,13 +62,14 @@ def build_structured_output(prompt_1_thinking: dict) -> dict:
                 sub_change_str = sub_data.get("Sub-Section Change", "0%").strip().replace('%', '')
 
                 try:
-                    sub_makeup = round(float(sub_makeup_str), 1)
-                    sub_change = int(round(float(sub_change_str)))  # integer only
-                    sub_effect = round((sub_makeup / 100) * sub_change, 1)
-                except ValueError:
-                    sub_makeup = 0.0
-                    sub_change = 0
-                    sub_effect = 0.0
+                    sub_makeup = quantize_1dp(sub_makeup_str)
+                    sub_change = Decimal(int(round(float(sub_change_str))))  # force integer
+                    raw_effect = (sub_makeup / Decimal(100)) * sub_change
+                    sub_effect = quantize_1dp(raw_effect)
+                except Exception:
+                    sub_makeup = Decimal("0.0")
+                    sub_change = Decimal("0")
+                    sub_effect = Decimal("0.0")
 
                 sub_output["Sub-Section MakeUp"] = format_integer_percent(sub_makeup)
                 sub_output["Sub-Section Change"] = format_decimal_percent(sub_change)
@@ -77,8 +81,9 @@ def build_structured_output(prompt_1_thinking: dict) -> dict:
                 sub_sections[sub_key] = sub_output
                 sub_section_effects.append(sub_effect)
 
-        section_change = round(sum(sub_section_effects), 1)
-        section_effect = round((section_makeup / 100) * section_change, 1)
+        # Final section-level computation
+        section_change = quantize_1dp(sum(sub_section_effects))
+        section_effect = quantize_1dp((section_makeup / Decimal(100)) * section_change)
 
         section_output["Section Change"] = format_decimal_percent(section_change)
         section_output["Section Effect"] = format_decimal_percent(section_effect)
