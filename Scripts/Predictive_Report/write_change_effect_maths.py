@@ -24,29 +24,26 @@ def build_structured_output(prompt_1_thinking: dict) -> dict:
         sub_sections = {}
         sub_section_effects = []
 
-        # Extract top-level section metadata
+        # Section metadata
         section_title = section_data.get("Section Title", "").strip()
         section_summary = section_data.get("Section Summary", "").strip()
         section_makeup_str = section_data.get("Section MakeUp", "0%").strip().replace('%', '')
+
         try:
-            section_makeup = float(section_makeup_str)
+            section_makeup = round(float(section_makeup_str), 1)
         except ValueError:
             section_makeup = 0.0
 
-        # --- Build ordered section dict ---
         section_output = {}
         section_output["Section Title"] = section_title
         section_output["Section Summary"] = section_summary
         section_output["Section MakeUp"] = format_integer_percent(section_makeup)
-
-        # Placeholders
         section_output["Section Change"] = None
         section_output["Section Effect"] = None
 
         if "Section Related Article" in section_data:
             section_output["Section Related Article"] = section_data["Section Related Article"]
 
-        # --- Sub-section processing ---
         for sub_key in sorted(section_data.keys()):
             sub_data = section_data[sub_key]
             if (
@@ -62,32 +59,30 @@ def build_structured_output(prompt_1_thinking: dict) -> dict:
                 sub_change_str = sub_data.get("Sub-Section Change", "0%").strip().replace('%', '')
 
                 try:
-                    sub_makeup = float(sub_makeup_str)
-                    sub_change = float(sub_change_str)
-                    raw_sub_effect = (sub_makeup / 100) * sub_change
+                    sub_makeup = round(float(sub_makeup_str), 1)
+                    sub_change = int(round(float(sub_change_str)))  # integer only
+                    sub_effect = round((sub_makeup / 100) * sub_change, 1)
                 except ValueError:
                     sub_makeup = 0.0
-                    sub_change = 0.0
-                    raw_sub_effect = 0.0
+                    sub_change = 0
+                    sub_effect = 0.0
 
                 sub_output["Sub-Section MakeUp"] = format_integer_percent(sub_makeup)
                 sub_output["Sub-Section Change"] = format_decimal_percent(sub_change)
-                sub_output["Sub-Section Effect"] = format_decimal_percent(raw_sub_effect)
+                sub_output["Sub-Section Effect"] = format_decimal_percent(sub_effect)
 
                 if "Sub-Section Related Article" in sub_data:
                     sub_output["Sub-Section Related Article"] = sub_data["Sub-Section Related Article"]
 
                 sub_sections[sub_key] = sub_output
-                sub_section_effects.append(raw_sub_effect)
+                sub_section_effects.append(sub_effect)
 
-        # --- Final section-level calculation using raw values
-        raw_section_change = sum(sub_section_effects)
-        raw_section_effect = (section_makeup / 100) * raw_section_change
+        section_change = round(sum(sub_section_effects), 1)
+        section_effect = round((section_makeup / 100) * section_change, 1)
 
-        section_output["Section Change"] = format_decimal_percent(raw_section_change)
-        section_output["Section Effect"] = format_decimal_percent(raw_section_effect)
+        section_output["Section Change"] = format_decimal_percent(section_change)
+        section_output["Section Effect"] = format_decimal_percent(section_effect)
 
-        # Append sub-sections
         for sub_key, sub_data in sub_sections.items():
             section_output[sub_key] = sub_data
 
