@@ -28,7 +28,6 @@ def build_structured_output(prompt_1_thinking: dict) -> dict:
         section_title = section_data.get("Section Title", "").strip()
         section_summary = section_data.get("Section Summary", "").strip()
         section_makeup_str = section_data.get("Section MakeUp", "0%").strip().replace('%', '')
-
         try:
             section_makeup = float(section_makeup_str)
         except ValueError:
@@ -40,7 +39,7 @@ def build_structured_output(prompt_1_thinking: dict) -> dict:
         section_output["Section Summary"] = section_summary
         section_output["Section MakeUp"] = format_integer_percent(section_makeup)
 
-        # Placeholder – these get filled after sub-sections processed
+        # Placeholders — to be overwritten after sub-section processing
         section_output["Section Change"] = None
         section_output["Section Effect"] = None
 
@@ -81,13 +80,14 @@ def build_structured_output(prompt_1_thinking: dict) -> dict:
                 sub_sections[sub_key] = sub_output
                 sub_section_effects.append(sub_effect)
 
-        # --- Now calculate section-level metrics
-        section_change = sum(sub_section_effects)
-        section_effect = (section_makeup / 100) * section_change
-        section_output["Section Change"] = format_decimal_percent(section_change)
-        section_output["Section Effect"] = format_decimal_percent(section_effect)
+        # --- Final calculation using raw values
+        raw_section_change = sum(sub_section_effects)
+        raw_section_effect = (section_makeup / 100) * raw_section_change
 
-        # Append sub-sections after all section-level fields
+        section_output["Section Change"] = format_decimal_percent(raw_section_change)
+        section_output["Section Effect"] = format_decimal_percent(raw_section_effect)
+
+        # Append sub-sections after section-level metrics
         for sub_key, sub_data in sub_sections.items():
             section_output[sub_key] = sub_data
 
@@ -107,6 +107,7 @@ def background_task(run_id: str, raw_data: dict):
         text_output = json.dumps(structured_output, indent=2)
     except Exception as e:
         text_output = f"Failed to process data: {str(e)}"
+        logger.error(text_output)
 
     write_supabase_file(supabase_path, text_output)
 
