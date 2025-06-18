@@ -23,20 +23,24 @@ You must:
 **[1] Top-Level Section Identification**:
 - Identify exactly {number_sections} distinct sections (no fewer) influencing {target_variable} of {commodity} in {region} over the next {time_range}.
 - Each section must include:
-  - A Section Title
-  - A Section Makeup (% contribution to the overall change) — must sum to exactly 100% across all sections, using integer values only.
-    - All values must respect signs and decimal rules:
-      - Integers only, must sum to 100
+  - A `Section Title`
+  - A `Section Makeup` — the percentage contribution of this section to the overall projected change.
+    - **MakeUp % must be justified by the *degree of influence* and *evidence strength*** based on current trends, article support, and structural relevance to the target variable.
+    - **Do not default to templates** (e.g. 25/20/20/20/15). Output should vary run to run based on the data.
+    - All values must be **integers only**, and must **sum to exactly 100% across all sections**.
 
 **[2] Sub-Sections per Section**:
 - Within each section, identify exactly {number_sub_sections} sub-sections (no fewer) that influence it.
 - Each sub-section must include:
-  - A Sub-Section Title
-  - A Sub-Section Makeup (%) — must sum to exactly 100% per section, using integer values only.
-  - A Sub-Section Change (%) — strictly directional, to 1 decimal place:
+  - A `Sub-Section Title`
+  - A `Sub-Section Makeup` — the percentage contribution of this sub-section to its parent section.
+    - Again, do **not default to templates** (e.g. 34/33/33). 
+    - Each Makeup % must reflect the *relative strength of influence* and *article evidence*.
+    - Must use **integers only**, and **sum to exactly 100% per section**.
+  - A `Sub-Section Change` — strictly directional, to 1 decimal place:
     - Use a negative value if pressure is downward on {target_variable}
     - Use a positive value if pressure is upward on {target_variable}
-    - Do not invert or reinterpret direction
+    - Do not invert or reinterpret direction.
 
 **[3] Sources**:
 - For each Section and each Sub-Section, use multiple supporting articles where available.
