@@ -39,7 +39,7 @@ def build_structured_output(prompt_1_thinking: dict) -> dict:
         section_output["Section Summary"] = section_summary
         section_output["Section MakeUp"] = format_integer_percent(section_makeup)
 
-        # Placeholders — to be overwritten after sub-section processing
+        # Placeholders
         section_output["Section Change"] = None
         section_output["Section Effect"] = None
 
@@ -64,30 +64,30 @@ def build_structured_output(prompt_1_thinking: dict) -> dict:
                 try:
                     sub_makeup = float(sub_makeup_str)
                     sub_change = float(sub_change_str)
-                    sub_effect = (sub_makeup / 100) * sub_change
+                    raw_sub_effect = (sub_makeup / 100) * sub_change
                 except ValueError:
                     sub_makeup = 0.0
                     sub_change = 0.0
-                    sub_effect = 0.0
+                    raw_sub_effect = 0.0
 
                 sub_output["Sub-Section MakeUp"] = format_integer_percent(sub_makeup)
                 sub_output["Sub-Section Change"] = format_decimal_percent(sub_change)
-                sub_output["Sub-Section Effect"] = format_decimal_percent(sub_effect)
+                sub_output["Sub-Section Effect"] = format_decimal_percent(raw_sub_effect)
 
                 if "Sub-Section Related Article" in sub_data:
                     sub_output["Sub-Section Related Article"] = sub_data["Sub-Section Related Article"]
 
                 sub_sections[sub_key] = sub_output
-                sub_section_effects.append(sub_effect)
+                sub_section_effects.append(raw_sub_effect)
 
-        # --- Final calculation using raw values
+        # --- Final section-level calculation using raw values
         raw_section_change = sum(sub_section_effects)
         raw_section_effect = (section_makeup / 100) * raw_section_change
 
         section_output["Section Change"] = format_decimal_percent(raw_section_change)
         section_output["Section Effect"] = format_decimal_percent(raw_section_effect)
 
-        # Append sub-sections after section-level metrics
+        # Append sub-sections
         for sub_key, sub_data in sub_sections.items():
             section_output[sub_key] = sub_data
 
