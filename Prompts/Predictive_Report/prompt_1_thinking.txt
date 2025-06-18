@@ -26,7 +26,6 @@ You must:
   - A `Section Title`
   - A `Section Makeup` — the percentage contribution of this section to the overall projected change.
     - **MakeUp % must be justified by the *degree of influence* and *evidence strength*** based on current trends, article support, and structural relevance to the target variable.
-    - **Do not default to templates** (e.g. 25/20/20/20/15). Output should vary run to run based on the data.
     - All values must be **integers only**, and must **sum to exactly 100% across all sections**.
 
 **[2] Sub-Sections per Section**:
@@ -34,10 +33,11 @@ You must:
 - Each sub-section must include:
   - A `Sub-Section Title`
   - A `Sub-Section Makeup` — the percentage contribution of this sub-section to its parent section.
-    - Again, do **not default to templates** (e.g. 34/33/33). 
+    - Do **not default to templates** (e.g. 34/33/33). 
     - Each Makeup % must reflect the *relative strength of influence* and *article evidence*.
     - Must use **integers only**, and **sum to exactly 100% per section**.
   - A `Sub-Section Change` — strictly directional, to 1 decimal place:
+    - You **must provide a change percentage** (e.g. it must never be 0%). 
     - Use a negative value if pressure is downward on {target_variable}
     - Use a positive value if pressure is upward on {target_variable}
     - Do not invert or reinterpret direction.
@@ -61,7 +61,7 @@ You must:
     - `Summary` 
     - `Relevance` 
     - `Source` (no URLs)  
-- If no source exists, use `"Unknown"`
+- 
 
 ---
 
