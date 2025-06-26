@@ -22,6 +22,7 @@ def run_prompt(data):
         region = safe_escape(data["region"])
         time_range = safe_escape(data["time_range"])
         prompt_1_thinking = safe_escape(data["prompt_1_thinking"])
+        report_change = safe_escape(data["report_change"])
 
         # Load and populate prompt template
         with open("Prompts/Predictive_Report/prompt_4_tables.txt", "r", encoding="utf-8") as f:
@@ -36,7 +37,8 @@ def run_prompt(data):
             commodity=commodity,
             region=region,
             time_range=time_range,
-            prompt_1_thinking=prompt_1_thinking
+            prompt_1_thinking=prompt_1_thinking,
+            report_change=report_change
         )
 
         # Send prompt to OpenAI
