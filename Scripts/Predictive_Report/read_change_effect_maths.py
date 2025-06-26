@@ -58,7 +58,7 @@ def run_prompt(data):
                 full_json_string = "{" + split_blocks[1]
 
                 # Flatten content for Zapier display
-                flattened = flatten_json_like_text(content).replace("{:", "")
+                flattened = flatten_json_like_text("{" + split_blocks[1]).replace("{:", "")
 
                 return {
                     "status": "success",
