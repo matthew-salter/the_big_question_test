@@ -104,12 +104,33 @@ def background_task(run_id: str, raw_data: dict):
         raw_prompt = raw_data.get("prompt_1_thinking", "")
         prompt_data = yaml.safe_load(raw_prompt)
         structured_output = build_structured_output(prompt_data)
-        text_output = json.dumps(structured_output, indent=2)
-    except Exception as e:
-        text_output = f"Failed to process data: {str(e)}"
-        logger.error(text_output)
 
-    write_supabase_file(supabase_path, text_output)
+        # Calculate Report Change from Section Effects
+        section_effects = []
+        for section_data in structured_output.values():
+            effect_str = section_data.get("Section Effect", "0.0%").replace('%', '').strip()
+            try:
+                section_effects.append(Decimal(effect_str))
+            except Exception:
+                section_effects.append(Decimal("0.0"))
+
+        report_change = quantize_1dp(sum(section_effects))
+        report_change_formatted = format_decimal_percent(report_change)
+
+        # Create report change block
+        report_change_block = json.dumps({"Report Change": report_change_formatted}, indent=2)
+
+        # Full structured output block
+        structured_output_block = json.dumps(structured_output, indent=2)
+
+        # Combine and write both to file
+        full_text_output = f"{report_change_block}\n\n{structured_output_block}"
+
+    except Exception as e:
+        full_text_output = f"Failed to process data: {str(e)}"
+        logger.error(full_text_output)
+
+    write_supabase_file(supabase_path, full_text_output)
 
 def run_prompt(data):
     run_id = str(uuid.uuid4())
