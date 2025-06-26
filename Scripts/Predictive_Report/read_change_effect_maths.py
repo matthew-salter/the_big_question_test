@@ -1,3 +1,4 @@
+import json
 import time
 from logger import logger
 from Engine.Files.read_supabase_file import read_supabase_file
@@ -6,10 +7,6 @@ MAX_RETRIES = 6
 RETRY_DELAY_SECONDS = 2  # 2, 4, 8, 16, 32, 64 seconds
 
 def flatten_json_like_text(text: str) -> str:
-    """
-    Converts a JSON-style string into a readable, indented block text,
-    stripping ``` wrappers and trailing quotes.
-    """
     lines = text.strip().splitlines()
     result = []
     indent_level = 0
@@ -17,16 +14,11 @@ def flatten_json_like_text(text: str) -> str:
     for line in lines:
         clean_line = line.strip()
 
-        # Skip markdown block markers
         if clean_line.startswith("```"):
             continue
-
-        # Decrease indent after closing brace
         if clean_line.startswith("}") or clean_line.startswith("},"):
             indent_level = max(indent_level - 1, 0)
             continue
-
-        # Nested object
         if clean_line.endswith("{") or clean_line.endswith("{,"):
             key = clean_line.split(":", 1)[0].strip().strip('"')
             result.append("  " * indent_level + f"{key}:")
@@ -56,12 +48,23 @@ def run_prompt(data):
                 content = read_supabase_file(supabase_path)
                 logger.info(f"✅ File retrieved successfully from Supabase for run_id: {run_id}")
 
+                # Separate Report Change and main content
+                split_blocks = content.strip().split("}\n\n{", 1)
+                if len(split_blocks) != 2:
+                    raise ValueError("Unexpected file structure: Expected two JSON blocks.")
+
+                # Reconstruct valid JSON strings
+                report_change_json = json.loads(split_blocks[0] + "}")
+                full_json_string = "{" + split_blocks[1]
+
+                # Flatten content for Zapier display
                 flattened = flatten_json_like_text(content).replace("{:", "")
 
                 return {
                     "status": "success",
                     "run_id": run_id,
-                    "change_effect_maths": flattened
+                    "change_effect_maths": flattened,
+                    "report_change": report_change_json.get("Report Change", "")
                 }
 
             except Exception as e:
